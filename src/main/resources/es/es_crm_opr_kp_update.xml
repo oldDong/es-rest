@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="EsCrmOprKpUpdate">
+
+    <select id="list" parameterType="java.util.Map">
+      GET crm_opr_kp_update/crm_opr_kp_update/_search
+        {
+          "query" : {
+            "bool" : {
+              "must" : [
+                <trim prefix="" prefixOverrides=",">
+                  <if test="orgId != null">, {"match" : {"orgid" : ${orgId}}}</if>
+                  <if test="depttitles != null">, {"match" : {"depttitles" : "${depttitles}"}}</if>
+                </trim>
+              ]
+            }
+          }
+          <if test="offset != null and limit != null">
+              ,"from": ${offset}
+              ,"size": ${limit}
+          </if>
+        }
+    </select>
+
+    <select id="get" parameterType="java.util.Map">
+        GET crm_opr_kp_update/crm_opr_kp_update/_search
+        {
+          "query" : {
+            "bool" : {
+              "must" : [
+                <trim prefix="" prefixOverrides=",">
+                    <if test="orgId != null">, {"term" : {"orgid" : ${orgId}}}</if>
+                    <if test="uid != null">, {"term" : {"uid" : ${uid}}}</if>
+                </trim>
+              ]
+            }
+          }
+        }
+    </select>
+
+    <select id="updateTags" parameterType="java.util.Map">
+      POST crm_opr_kp_update/crm_opr_kp_update/_update_by_query?conflicts=proceed
+      {
+          "script" : {
+            "inline" : "ctx._source.tags = params.tags",
+            "params" : {"tags" : "${tags}"},
+          "lang" : "painless"
+        },
+        "query" :{
+          "bool" :{
+            "must" : [
+              <trim prefix="" prefixOverrides=",">
+                <if test="orgId != null">, {"term" : {"orgid" : ${orgId}}}</if>
+                <if test="uid != null">, {"term" : {"uid" : ${uid}}}</if>
+              </trim>
+            ]
+          }
+        }
+      }
+    </select>
+
+    <select id="addTags" parameterType="java.util.Map">
+        POST crm_opr_kp_update/crm_opr_kp_update/_update_by_query?conflicts=proceed
+        {
+            "script" : {
+                "inline" : "ctx._source.tags+=params.new_tag",
+                "params" : {"new_tag" : "${tag}"},
+                "lang" : "painless"
+            },
+            "query" : {
+              "bool" : {
+                "must" : [
+                    <trim prefix="" prefixOverrides=",">
+                        <if test="orgId != null">, {"term" : {"orgid" : ${orgId}}}</if>
+                        <if test="uid != null">, {"term" : {"uid" : ${uid}}}</if>
+                    </trim>
+                ]
+              }
+            }
+        }
+    </select>
+
+    <select id="range" parameterType="java.util.Map">
+        GET crm_opr_kp_update/crm_opr_kp_update/_search
+        {
+          "query" : {
+            "range" : {
+                "lastuv" : {
+                    "gte" : ${small},
+                    "lt" : ${big}
+                }
+            }
+          }
+        }
+    </select>
+
+    <select id="filter" parameterType="java.util.Map">
+        GET crm_opr_kp_update/crm_opr_kp_update/_search
+        {
+          "query" : {
+            "bool" : {
+              "must" : [
+                <trim prefix="" prefixOverrides=",">
+                    <if test="orgName != null">, {"match" : {"orgname" : "${orgName}"}}</if>
+                    <if test="city != null">, {"match" : {"city" : "${city}"}}</if>
+                </trim>
+              ],
+              "filter" : {
+                "range" : {
+                    "lastuv" : {
+                        "gte" : ${small},
+                        "lte" : ${big}
+                    }
+                }
+              }
+            }
+          }
+        <if test="offset != null and limit != null">
+            ,"from": ${offset}
+            ,"size": ${limit}
+        </if>
+        }
+    </select>
+
+
+
+</mapper>
+
+

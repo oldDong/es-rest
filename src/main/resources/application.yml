@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: es-rest
+
+es.ips: 10.0.10.104
